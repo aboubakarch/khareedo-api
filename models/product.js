@@ -1,4 +1,5 @@
 const { Schema, Types, model } = require('mongoose');
+const paginate = require('mongoose-paginate-v2');
 
 const productSchema = new Schema({
   _id: Schema.Types.String,
@@ -9,6 +10,8 @@ const productSchema = new Schema({
   rating: Schema.Types.Number,
   description: Schema.Types.String,
 });
+
+productSchema.plugin(paginate);
 
 const Product = model('Product', productSchema);
 

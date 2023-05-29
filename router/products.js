@@ -10,27 +10,16 @@ const Product = require('../models/product');
 
 const productRouter = express.Router();
 
-productRouter.get('/', (req, res) => {
-  const { cid, count } = req.query;
-  const products = count
-    ? sortProductDescByRating(count)
-    : cid
-    ? getBestSellerByCategoryId(cid)
-    : getBestSeller();
-  setTimeout(() => {
-    res.status(200).send(products);
-  }, 3000);
-});
-
-productRouter.get('/:id', (req, res) => {
-  const { id } = req.params;
-  const product = getProductById(id);
-  if (product.id) {
-    setTimeout(() => {
-      res.status(200).send(product);
-    }, 3000);
-  } else {
-    res.status(404).send('Product not found');
+productRouter.get('/', async (req, res) => {
+  try {
+    const { page, pageSize } = req.query;
+    const resp = await Product.paginate(
+      {},
+      { offset: parseInt(page) - 1, limit: pageSize }
+    );
+    res.status(200).send(resp);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 
@@ -42,6 +31,47 @@ productRouter.post('/', async (req, res) => {
     res.status(201).send(resp);
   } catch (error) {
     res.status(400).send(error.message);
+  }
+});
+
+productRouter.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resp = await Product.findById(id);
+    res.status(200).send(resp);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+productRouter.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resp = await Product.findByIdAndDelete(id);
+    if (!resp) {
+      res.status(404).send('Already deleted!');
+      return;
+    }
+    res.status(200).send('Successfully Deleted');
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+productRouter.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    console.log(data);
+    const resp = await Product.findByIdAndUpdate(id, data);
+    console.log(resp);
+    if (!resp) {
+      res.status(404).send('The product against given id not exits!');
+      return;
+    }
+    res.status(200).send({ ...data, id });
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 
