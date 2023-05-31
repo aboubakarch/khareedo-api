@@ -6,7 +6,10 @@ const productSchema = new Schema({
   title: Schema.Types.String,
   img: Schema.Types.String,
   price: Schema.Types.String,
-  category: Schema.Types.String,
+  category: {
+    type: Schema.Types.String,
+    ref: 'Category',
+  },
   rating: Schema.Types.Number,
   description: Schema.Types.String,
 });
